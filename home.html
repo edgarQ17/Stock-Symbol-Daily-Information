@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ <!-- download jQuery from Google CDN -->
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+ <link rel="stylesheet" href="styles.css">
+ <script type="text/javascript">
+ function runjQuery()
+ {
+ $.ajax(
+ {
+ //setup parameters
+ url: "populateselect.php",
+ success: function(serverdata)
+ {
+ $("#showselect").html(serverdata);
+ }
+ });
+ }
+
+ function displaymap()
+ {
+ //getting the passing values (from PHP to HTML)
+ var selectOption = $("#stockList").val();
+ 
+ //extracting individual values from string selectOption
+ var exchange = selectOption.split(",")[0];
+ var symbols = selectOption.split(",")[1]; 
+ var name = selectOption.split(",")[2];
+ var lastSale = selectOption.split(",")[3];
+ var marketCap = selectOption.split(",")[4];
+ var adrTso = selectOption.split(",")[5];
+ var ipoYear = selectOption.split(",")[6];
+ var sector = selectOption.split(",")[7];
+ var industry = selectOption.split(",")[8];
+ var summaryQuote = selectOption.split(",")[9];
+
+ var myStr = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=@&interval=60min&apikey=UP5H3HFZFNA68TWA';
+        var theURL = myStr.replace(/@/g, symbols);
+
+  $(document).ready(function() {
+   $("#stockIndicator").show();
+  
+   doAjax(theURL);
+   calc(theURL);
+
+  function calc(url){
+        $("#stockIndicator").show();
+     console.log(url)
+    doAjax(url);
+    return false;
+   }
+
+   function numberWithCommas(x) {
+     return x.toString().replace(/\B(?=(?:\d{3})+(?!\d))/g, ",");
+   }
+
+ function doAjax(url) {
+     $.ajax({
+       url: url,
+       dataType: 'json',
+       contentType: "application/json",
+       success: function(data) {
+        console.log(data)
+         var symbol = data["Meta Data"]["2. Symbol"]
+         var lastRefreshed = data['Meta Data']['3. Last Refreshed']
+         var lastTradePriceOnly = data['Time Series (60min)'][lastRefreshed]['4. close']
+         var lastVolume = data['Time Series (60min)'][lastRefreshed]['5. volume']
+ 
+         $('#stockSymbol').html(symbol);
+         $('#stockAsk').html(lastTradePriceOnly);
+         $('#stockVolume').html(numberWithCommas(lastVolume));
+         $('#stockChange').html((industry));
+         $('#stockChangePercent').html((sector));
+
+         
+         $('#stockRange').html((marketCap));
+         $('#stockAvgVolume').html((exchange));
+         $('#symbol').html((name));
+
+         $("#stockIndicator").hide();
+       }
+     });
+   }
+ });
+
+  }
+   //end of function displaymap()
+  </script>
+
+
+
+
+
+
+
+
+
+ </head>
+ <body onload="runjQuery();">
+ <h1 >Stock Price </h1><p></p>
+ <div>
+  <!-- stock select -->
+<p>  Stocks: <span id="showselect"></span></p>
+ </div>
+ 
+
+<!-- stock bdiv reactangle -->
+ <div id="stock_miniQuote_head" class="ajaxtrigger"><span id="stockSymbol">&nbsp</div>
+
+ <div id="stock_miniQuote">
+   <div id="stockIndicator">
+     <p>Retrieving stock information...</p>
+   </div>
+ 
+ 
+   <div class="stock_divider">
+ 
+     <div id="stock_left">
+       <span class="stock_label">Price</span><br/>
+       <strong class="stock_strong">$<span id="stockAsk"></span></strong><br/>
+     </div>
+ 
+ 
+     <div id="stock_right">
+       <span class="stock_label">Summary</span><br/>
+       <strong class="stock_strong"><span id="stockChange"></span></strong><br />
+<br>
+       <span class="stock_label">Sector</span><br/>
+       <strong class="stock_strong"><span id="stockChangePercent"></span></strong><br />
+     </div>
+     <div style="clear: both;"></div>
+ 
+ 
+   </div>
+ 
+   <div id="stock_body">
+ 
+     <div id="stock_body_content">
+       <span class="stock_label">Volume</span><br/>
+       <strong class="stock_strong"><span id="stockVolume"></span></strong>
+       <br /><br />
+       <span class="stock_label">Exchange</span><br/>
+       <strong class="stock_strong"><span id="stockAvgVolume"></span></strong>
+       <br /><br />
+       <span class="stock_label">Market Cap</span><br/>
+       <strong class="stock_strong"><span id="stockRange"></span></strong>
+ 
+     </div>
+ 
+     <div style="clear: both;"></div>
+ 
+   </div>
+
+
+
+
+
+
+
+ </body>
+</html>
